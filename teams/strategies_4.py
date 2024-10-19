@@ -44,7 +44,7 @@ NUM_TO_VAL = {v: k for k, v in VAL_TO_NUM.items()}
 MIN_SUIT = {player: -1 for player in PLAYERS}
 
 DECK = [Card(suit, value) for suit in SUIT_TO_NUM.keys() for value in VAL_TO_NUM.keys()]
-SWITCH_STRATEGIES = 1
+SWITCH_STRATEGIES = 8
 PERMUTATIONS_SEEN = { "North": [],
     "South": [],
     "East": [],
@@ -61,7 +61,6 @@ def generate_permutation(perm_size, seedcard, player, unguessed_cards):
 
     # Generate a seed based on the card's suit and value
     seed = SUIT_TO_NUM[seedcard.suit] + VAL_TO_NUM[seedcard.value]
-    
     # Use NumPy's random generator with the seed
     # rng = np.random.default_rng(seed)
     
@@ -73,6 +72,7 @@ def generate_permutation(perm_size, seedcard, player, unguessed_cards):
     
     # print("Seed", seed)
     sample = random.sample(unguessed, perm_size)
+    #print("Seed",seed, "Seed card",seedcard, "Sample",sample, "Size", perm_size)
     # print("Card", seedcard, "Perm size", perm_size, "Sample", sample)
     
     return sample
@@ -146,6 +146,12 @@ def group_cards_by_suit(cards):
 
 def round_1_strategy(player, remaining_cards):
     """Eliminate the cards of min suit and return 4 cards from other suits."""
+    global MIN_SUIT, PERMUTATIONS_SEEN
+    PERMUTATIONS_SEEN = { "North": [],
+    "South": [],
+    "East": [],
+    "West": [],
+}
     suit = player.exposed_cards[PARTNERS[player.name]][-1].suit
     MIN_SUIT[player.name] = suit
 
@@ -157,6 +163,7 @@ def round_1_strategy(player, remaining_cards):
         for _, cards in suit_groups.items()
         for card in random.sample(cards, min(4, len(cards)))
     ]
+    #print("Selected cards in round 1", selected_cards[:12])
     return selected_cards[:12]
 
 
@@ -296,12 +303,12 @@ def playing(player: Player, deck: Deck):
     #print("Card", card, "PERM", permmm, "PERM FROM RANDOM", generate_permutation(13-game_round, card, player, unguessed_cards))
     #print("Max similarity", max_sim)
     #print("Min similarity", min_sim)
-    print("Playing:")
+    #print("Playing:", player.name)
     if game_round %2 == 0:
-        print(card1, permm1)
+        #print(card1, permm1)
         return card_index_min
     else:
-        print(card2, permm2)
+        #print(card2, permm2)
         return card_index_max
 
 
@@ -309,7 +316,7 @@ def playing(player: Player, deck: Deck):
 def guessing(player: Player, cards, game_round):
     """Returns a set of cards guessed at each game round."""
     #print(f"\nPlayer: {player.name}")
-
+    global MIN_SUIT, PERMUTATIONS_SEEN
     remaining_cards = get_remaining_cards(player, cards)
     if not remaining_cards:
         #print(f"0 cards remaining at game round {game_round}")
@@ -343,10 +350,10 @@ def guessing(player: Player, cards, game_round):
             #print(val)
             if val in prob:
                 if i%2 == 0:
-                    prob[val] *= 0.9  # Reduce
+                    prob[val] *= 0.2  # Reduce
                     #print("Reducing prob of ", val, "to ", prob[val])
                 else:
-                    prob[val] *=1.1 #Increase
+                    prob[val] *=2.25 #Increase
                     #print("Increasing prob of ", val, "to ", prob[val])
 
     normalized_weights = np.array(list(prob.values()))
