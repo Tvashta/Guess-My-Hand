@@ -45,7 +45,8 @@ MIN_SUIT = {player: -1 for player in PLAYERS}
 
 DECK = [Card(suit, value) for suit in SUIT_TO_NUM.keys() for value in VAL_TO_NUM.keys()]
 SWITCH_STRATEGIES = 8
-PERMUTATIONS_SEEN = { "North": [],
+PERMUTATIONS_SEEN = {
+    "North": [],
     "South": [],
     "East": [],
     "West": [],
@@ -57,32 +58,26 @@ def generate_permutation(perm_size, seedcard, player, unguessed_cards):
     unguessed = unguessed_cards.copy()
     if seedcard in unguessed:
         unguessed.remove(seedcard)
-    unguessed = sorted(unguessed, key=lambda k: VAL_TO_NUM[k.value] + SUIT_TO_NUM[k.suit])
+    unguessed = sorted(
+        unguessed, key=lambda k: VAL_TO_NUM[k.value] + SUIT_TO_NUM[k.suit]
+    )
 
     # Generate a seed based on the card's suit and value
     seed = SUIT_TO_NUM[seedcard.suit] + VAL_TO_NUM[seedcard.value]
-    # Use NumPy's random generator with the seed
-    # rng = np.random.default_rng(seed)
-    
+
     # Generate the permutation sample
     random.seed(seed)
-    # sample1 = np.random.choice(unguessed, perm_size, replace=False)
-    # np.random.seed(seed)
-    # sample2 = np.random.choice(unguessed, perm_size, replace=False)
-    
-    # print("Seed", seed)
     sample = random.sample(unguessed, perm_size)
-    #print("Seed",seed, "Seed card",seedcard, "Sample",sample, "Size", perm_size)
-    # print("Card", seedcard, "Perm size", perm_size, "Sample", sample)
-    
+
     return sample
 
 
-
-def get_unguessed_cards(player, play = False):
+def get_unguessed_cards(player, play=False):
     """Get all cards that have not been guessed by the player."""
     stop = player.name if play else PARTNERS[player.name]
-    length = len(player.exposed_cards["North"]) + int(player.name == "North" and stop == "North")
+    length = len(player.exposed_cards["North"]) + int(
+        player.name == "North" and stop == "North"
+    )
 
     exposed_cards = set()
     for i in range(length):
@@ -131,8 +126,6 @@ def get_remaining_cards(player, all_cards):
         | set(player.played_cards)
     )
     remaining_cards = [card for card in all_cards if card not in exposed_set]
-
-    #print(f"Remaining cards for player {player.name}: {remaining_cards}")
     return remaining_cards
 
 
@@ -147,11 +140,13 @@ def group_cards_by_suit(cards):
 def round_1_strategy(player, remaining_cards):
     """Eliminate the cards of min suit and return 4 cards from other suits."""
     global MIN_SUIT, PERMUTATIONS_SEEN
-    PERMUTATIONS_SEEN = { "North": [],
-    "South": [],
-    "East": [],
-    "West": [],
-}
+    PERMUTATIONS_SEEN = {
+        "North": [],
+        "South": [],
+        "East": [],
+        "West": [],
+    }
+
     suit = player.exposed_cards[PARTNERS[player.name]][-1].suit
     MIN_SUIT[player.name] = suit
 
@@ -163,7 +158,6 @@ def round_1_strategy(player, remaining_cards):
         for _, cards in suit_groups.items()
         for card in random.sample(cards, min(4, len(cards)))
     ]
-    #print("Selected cards in round 1", selected_cards[:12])
     return selected_cards[:12]
 
 
@@ -182,48 +176,12 @@ def update_probabilities_from_c_vals(player, probabilities, game_round):
             if card not in guess or player.cVals[i] != 0
         }
 
-        # if game_round >= 3 and flag == False:
-        #     flag = True
-        #     prev_guess = guesses[-2]
-        #     prev_cval = cvals[-2]
-        #     pres_guess = guesses[-1]
-        #     pres_cval = cvals[-1]
-        #     print("/nPlayer: ", player.name)
-        #     print()
-        #     print(pres_cval, prev_cval)
-        #     better_cards = []
-        #     worse_cards = []
-        #     best_cards = []
-        #     if pres_cval > prev_cval:
-        #         print("Guesses:")
-        #         print(pres_guess, prev_guess)
-        #         better_cards = [card for card in set(pres_guess) - set(prev_guess)]
-        #         print(f"\nPlayer: {player.name}")
-        #         print("Here", better_cards)
-        #     elif pres_cval < prev_cval:
-        #         print(pres_cval, prev_cval)
-        #         worse_cards = [card for card in set(prev_guess) - set(pres_guess)]
-        #         print(f"\nPlayer: {player.name}")
-        #         print("There", worse_cards)
-        #     else:
-        #         best_cards = [
-        #             card for card in set(pres_guess).intersection(set(prev_guess))
-        #         ]
-        #         print("Else", better_cards)
-        #     for card in prob:
-        #         if card in better_cards:
-        #             prob[card] *= 1.1
-        #         elif card in best_cards:
-        #             prob[card] *= 1.1
-        #         elif card in worse_cards:
-        #             prob[card] *= 0.9
-
         for card in prob:
             if card in guess:
                 if c == len(guess):  # All cards are right
                     prob[card] = 100
                 elif c > (len(guess) // 2) + 1:  # More than half are right
-                    prob[card] *= (c / len(guess))
+                    prob[card] *= c / len(guess)
                 elif c == 0:
                     prob[card] = 0
                 else:  # Boost by c/len(guess)
@@ -255,12 +213,12 @@ def playing(player: Player, deck: Deck):
     """
     global PERMUTATIONS_SEEN
     game_round = len(player.played_cards) + 1
-    # print("SEED", deck.seed)
-    player.hand=sorted(player.hand, key=lambda k: VAL_TO_NUM[k.value] + SUIT_TO_NUM[k.suit])
+    player.hand = sorted(
+        player.hand, key=lambda k: VAL_TO_NUM[k.value] + SUIT_TO_NUM[k.suit]
+    )
 
     if game_round == 1:
         PERMUTATIONS_SEEN = []
-        # print("PLAYER", player.name,PERMUTATIONS_SEEN, deck.seed, player.hand)
         freq = get_suit_frequencies(player.hand)
         min_suit = min(freq, key=freq.get)
         max_card_in_min_suit = max(
@@ -269,7 +227,7 @@ def playing(player: Player, deck: Deck):
         )
         return player.hand.index(max_card_in_min_suit)
 
-    if game_round > SWITCH_STRATEGIES :
+    if game_round > SWITCH_STRATEGIES:
         return (
             player.hand.index(min(player.hand, key=lambda card: VAL_TO_NUM[card.value]))
             if game_round % 2 == 0
@@ -277,15 +235,11 @@ def playing(player: Player, deck: Deck):
                 max(player.hand, key=lambda card: VAL_TO_NUM[card.value])
             )
         )
-    
+
     card_index_min = 0
     min_sim = len(player.hand)
     max_sim = 0
     card_index_max = 0
-    card1 = -1
-    permm1 = []
-    card2 =-1
-    permm2 = []
     unguessed_cards = get_unguessed_cards(player, True)
     for i, k in enumerate(player.hand):
         perm = generate_permutation(13 - game_round, k, player, unguessed_cards)
@@ -293,33 +247,21 @@ def playing(player: Player, deck: Deck):
         if sim < min_sim:
             card_index_min = i
             min_sim = sim
-            card1 = k
-            permm1 = perm
         elif sim > max_sim:
             card_index_max = i
             max_sim = sim
-            card2 = k
-            permm2 = perm
-    #print("Card", card, "PERM", permmm, "PERM FROM RANDOM", generate_permutation(13-game_round, card, player, unguessed_cards))
-    #print("Max similarity", max_sim)
-    #print("Min similarity", min_sim)
-    #print("Playing:", player.name)
-    if game_round %2 == 0:
-        #print(card1, permm1)
+
+    if game_round % 2 == 0:
         return card_index_min
     else:
-        #print(card2, permm2)
         return card_index_max
-
 
 
 def guessing(player: Player, cards, game_round):
     """Returns a set of cards guessed at each game round."""
-    #print(f"\nPlayer: {player.name}")
     global MIN_SUIT, PERMUTATIONS_SEEN
     remaining_cards = get_remaining_cards(player, cards)
     if not remaining_cards:
-        #print(f"0 cards remaining at game round {game_round}")
         return random.sample(cards, 13 - game_round)
 
     if game_round == 1:
@@ -338,26 +280,25 @@ def guessing(player: Player, cards, game_round):
             prob, player.exposed_cards[PARTNERS[player.name]][-1], game_round
         )
     else:
-        #print("Last exposed", player.exposed_cards[PARTNERS[player.name]][-1])
         unguessed_cards = get_unguessed_cards(player)
-        most_sim_p = generate_permutation(13-game_round, player.exposed_cards[PARTNERS[player.name]][-1], player, unguessed_cards)
+        most_sim_p = generate_permutation(
+            13 - game_round,
+            player.exposed_cards[PARTNERS[player.name]][-1],
+            player,
+            unguessed_cards,
+        )
         PERMUTATIONS_SEEN[player.name].append(most_sim_p)
-        #print("Most Similar/Disimilar Permutation", most_sim_p)
 
-    for i,permutation in enumerate(PERMUTATIONS_SEEN[player.name]):
-        #print(i,permutation)
+    for i, permutation in enumerate(PERMUTATIONS_SEEN[player.name]):
         for val in permutation:
-            #print(val)
             if val in prob:
-                if i%2 == 0:
+                if i % 2 == 0:
                     prob[val] *= 0.2  # Reduce
-                    #print("Reducing prob of ", val, "to ", prob[val])
                 else:
-                    prob[val] *=2.25 #Increase
-                    #print("Increasing prob of ", val, "to ", prob[val])
+                    prob[val] *= 2.25  # Increase
 
     normalized_weights = np.array(list(prob.values()))
     sorted_indices = np.argsort(normalized_weights)[::-1]
-    top_indices = sorted_indices[:13 - game_round]
+    top_indices = sorted_indices[: 13 - game_round]
     sampled_cards = [list(prob.keys())[i] for i in top_indices]
     return sampled_cards
