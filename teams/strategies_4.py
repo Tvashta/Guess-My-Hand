@@ -165,7 +165,6 @@ def update_probabilities_from_c_vals(player, probabilities, game_round):
     """Update probabilities of remaining cards based on c values and guess history."""
     cvals, guesses = update_c_vals_and_guesses(player)
     prob = probabilities.copy()
-    flag = False
     for i, guess in enumerate(guesses):
         c = cvals[i]
 
