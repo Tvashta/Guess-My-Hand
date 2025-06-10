@@ -1,3 +1,4 @@
+from collections import defaultdict
 import tkinter as tk
 import random
 import argparse
@@ -302,7 +303,12 @@ def run_game_without_gui(seed):
     for _ in range(13):
         for player in players:
             player.draw(deck)
-    
+    print()
+    for player in players:
+        freq = {'Hearts':0, 'Spades':0, 'Clubs':0, 'Diamonds':0}
+        for card in player.hand:
+            freq[card.suit] += 1
+        print(player.name, list(freq.values()))
     # Play the game
     ns_score = 0
     ew_score = 0
@@ -449,7 +455,7 @@ if __name__ == "__main__":
             partnership_scoresEW.append(scores["EW"])
             log_results(args.nsStrategy, args.ewStrategy, scores["NS"], scores["EW"], seed)
             seed += 1
-        
+        print(partnership_scoresNS, partnership_scoresEW)
         avg_scores = {
             "NS": np.mean(partnership_scoresNS),
             "EW": np.mean(partnership_scoresEW)
