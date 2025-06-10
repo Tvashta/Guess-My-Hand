@@ -2,16 +2,16 @@
 
 ## Summary
 
-Course: COMS 4444 Programming and Problem Solving (Fall 2024)  /
-Problem Description: https://www.cs.columbia.edu/~kar/4444f24/node19.html  /
-Course Website: https://www.cs.columbia.edu/~kar/4444f24/  /
-University: Columbia University  /
-Instructor: Prof. Kenneth Ross  /
+Course: COMS 4444 Programming and Problem Solving (Fall 2024)  \
+Problem Description: https://www.cs.columbia.edu/~kar/4444f24/node19.html  \
+Course Website: https://www.cs.columbia.edu/~kar/4444f24/  \
+University: Columbia University  \
+Instructor: Prof. Kenneth Ross  \
 Project Language: Python 
 
 ## Group 4
-Adithi Narayan, Logi Sigurdarson, Priyanka Rose Varghese /
-View the full report [here](https://drive.google.com/file/d/17qejvM3xUzuGbi_Xq77EA8DInCHJ1ydp/view?usp=sharing) /
+Adithi Narayan, Logi Sigurdarson, Priyanka Rose Varghese \
+View the full report [here](https://drive.google.com/file/d/17qejvM3xUzuGbi_Xq77EA8DInCHJ1ydp/view?usp=sharing) \
 Run group 4 as --nsStrategy or --ewStrategy and --nsGuesses or --ewGuesses
 
 ## Installation
